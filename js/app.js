@@ -6,6 +6,8 @@ import {
   filterProducts,
   setCategory,
   addUnitProduct,
+  addWeightProduct,
+  removeCartItem,
   clearCart
 } from "./state.js";
 
@@ -18,6 +20,7 @@ import {
 
 async function loadProducts() {
   try {
+
     const products = await fetchProducts();
 
     setProducts(products);
@@ -29,17 +32,23 @@ async function loadProducts() {
       handleAddProduct
     );
 
-    renderCart(handleClearCart);
+    renderCart(
+      handleRemoveItem,
+      handleClearCart
+    );
 
   } catch (error) {
+
     console.error(error);
 
     document.getElementById("loader").innerHTML =
       "Error al cargar productos.";
+
   }
 }
 
 function handleCategoryChange(category) {
+
   setCategory(category);
 
   filterProducts(
@@ -55,6 +64,7 @@ function handleCategoryChange(category) {
 }
 
 function handleSearch(event) {
+
   filterProducts(event.target.value);
 
   renderProducts(
@@ -63,44 +73,38 @@ function handleSearch(event) {
   );
 }
 
-function handleAddProduct(product) {
+function handleAddProduct(product, value) {
 
   if (product.tipoVenta === "weight") {
 
-    const grams = prompt(
-      "¿Cuántos gramos desea?"
+    addWeightProduct(
+      product,
+      Number(value)
     );
-
-    if (!grams) return;
-
-    const gramsNumber = Number(grams);
-
-    if (isNaN(gramsNumber) || gramsNumber <= 0) {
-      alert("Cantidad inválida.");
-      return;
-    }
-
-    const subtotal =
-      (Number(product.precioKg || 0) / 1000) *
-      gramsNumber;
-
-    state.cart.push({
-      productId: product.id,
-      nombre: product.nombre,
-      tipoVenta: "weight",
-      cantidad: null,
-      gramos: gramsNumber,
-      precio: Number(product.precioKg || 0),
-      subtotal
-    });
 
   } else {
 
-    addUnitProduct(product);
+    addUnitProduct(
+      product,
+      Number(value)
+    );
 
   }
 
-  renderCart(handleClearCart);
+  renderCart(
+    handleRemoveItem,
+    handleClearCart
+  );
+}
+
+function handleRemoveItem(index) {
+
+  removeCartItem(index);
+
+  renderCart(
+    handleRemoveItem,
+    handleClearCart
+  );
 }
 
 function handleClearCart() {
@@ -115,7 +119,10 @@ function handleClearCart() {
 
   clearCart();
 
-  renderCart(handleClearCart);
+  renderCart(
+    handleRemoveItem,
+    handleClearCart
+  );
 }
 
 function init() {
