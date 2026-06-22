@@ -68,7 +68,16 @@ export function clearCart() {
   saveCart();
 }
 
-export function addUnitProduct(product) {
+export function removeCartItem(index) {
+  state.cart.splice(index, 1);
+  saveCart();
+}
+
+export function addUnitProduct(product, quantity = 1) {
+  const qty = Number(quantity);
+
+  if (!qty || qty <= 0) return;
+
   const existing = state.cart.find(
     item =>
       item.productId === product.id &&
@@ -76,7 +85,7 @@ export function addUnitProduct(product) {
   );
 
   if (existing) {
-    existing.cantidad += 1;
+    existing.cantidad += qty;
     existing.subtotal =
       existing.cantidad * Number(existing.precio);
   } else {
@@ -84,12 +93,35 @@ export function addUnitProduct(product) {
       productId: product.id,
       nombre: product.nombre,
       tipoVenta: "unit",
-      cantidad: 1,
+      cantidad: qty,
       gramos: null,
       precio: Number(product.precioUnidad || 0),
-      subtotal: Number(product.precioUnidad || 0)
+      subtotal: qty * Number(product.precioUnidad || 0)
     });
   }
+
+  saveCart();
+}
+
+export function addWeightProduct(product, grams = 100) {
+  const selectedGrams = Number(grams);
+
+  if (!selectedGrams || selectedGrams <= 0) return;
+
+  const pricePerKg = Number(product.precioKg || 0);
+
+  const subtotal =
+    (pricePerKg / 1000) * selectedGrams;
+
+  state.cart.push({
+    productId: product.id,
+    nombre: product.nombre,
+    tipoVenta: "weight",
+    cantidad: null,
+    gramos: selectedGrams,
+    precio: pricePerKg,
+    subtotal
+  });
 
   saveCart();
 }
