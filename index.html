@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASTREA Vitrina Express</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <header class="header">
+    <div>
+      <p class="eyebrow">ASTREA™ Vitrina Express</p>
+      <h1 id="storeName">Despensa de barrio</h1>
+      <p class="subtitle">Armá tu pedido y retiralo en el local.</p>
+    </div>
+
+    <div class="header-actions">
+      <input id="searchInput" type="search" placeholder="Buscar productos...">
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+        <h2>Categorías</h2>
+        <div id="categoryList" class="categories"></div>
+      </section>
+    </aside>
+
+    <section class="content">
+      <div id="loader" class="loader">Cargando productos...</div>
+      <div id="productsGrid" class="products-grid"></div>
+    </section>
+
+    <aside class="cart-panel">
+      <section class="panel sticky">
+        <h2>Tu pedido</h2>
+
+        <div id="cartItems" class="cart-items"></div>
+
+        <div class="cart-total">
+          <span>Total estimado</span>
+          <strong id="cartTotal">Gs. 0</strong>
+        </div>
+
+        <div class="customer-form">
+          <input id="customerName" type="text" placeholder="Tu nombre">
+          <input id="customerPhone" type="tel" placeholder="Tu teléfono">
+          <textarea id="customerNote" placeholder="Observación del pedido"></textarea>
+        </div>
+
+        <button id="sendOrderBtn" class="btn btn-primary" type="button">
+          Enviar pedido por WhatsApp
+        </button>
+
+        <button id="clearCartBtn" class="btn btn-secondary" type="button">
+          Vaciar pedido
+        </button>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    ASTREA™ — Nuevas maneras de mostrarte, nuevas maneras de vender.
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
