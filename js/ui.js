@@ -10,7 +10,6 @@ export function renderStoreName() {
 
 export function renderCategories(onSelect) {
   const container = document.getElementById("categoryList");
-
   container.innerHTML = "";
 
   state.categories.forEach(category => {
@@ -48,15 +47,13 @@ export function renderProducts(products, onAddProduct) {
 
   products.forEach(product => {
     const card = document.createElement("article");
-
     card.className = "product-card";
 
     const image =
       product.imagen ||
       "https://placehold.co/500x500?text=Producto";
 
-    const isWeight =
-      product.tipoVenta === "weight";
+    const isWeight = product.tipoVenta === "weight";
 
     const priceText = isWeight
       ? `Gs. ${Number(product.precioKg || 0).toLocaleString()} / Kg`
@@ -68,7 +65,6 @@ export function renderProducts(products, onAddProduct) {
       </div>
 
       <div class="product-content">
-
         <div class="product-category">
           ${product.categoria || "General"}
         </div>
@@ -81,26 +77,46 @@ export function renderProducts(products, onAddProduct) {
           ${priceText}
         </div>
 
+        <div class="product-selector">
+          ${
+            isWeight
+              ? `
+                <label>Gramos</label>
+                <select class="product-input">
+                  <option value="100">100 g</option>
+                  <option value="250" selected>250 g</option>
+                  <option value="500">500 g</option>
+                  <option value="750">750 g</option>
+                  <option value="1000">1 kg</option>
+                </select>
+              `
+              : `
+                <label>Cantidad</label>
+                <input class="product-input" type="number" min="1" value="1">
+              `
+          }
+        </div>
+
         <div class="product-actions">
           <button class="btn btn-primary add-btn">
             Agregar
           </button>
         </div>
-
       </div>
     `;
 
     card
       .querySelector(".add-btn")
       .addEventListener("click", () => {
-        onAddProduct(product);
+        const value = card.querySelector(".product-input").value;
+        onAddProduct(product, value);
       });
 
     grid.appendChild(card);
   });
 }
 
-export function renderCart(onClear) {
+export function renderCart(onRemoveItem, onClear) {
   const container = document.getElementById("cartItems");
   const totalElement = document.getElementById("cartTotal");
 
@@ -114,36 +130,44 @@ export function renderCart(onClear) {
     `;
   }
 
-  state.cart.forEach(item => {
+  state.cart.forEach((item, index) => {
     const row = document.createElement("div");
-
     row.className = "cart-item";
 
     row.innerHTML = `
-      <strong>${item.nombre}</strong>
-
       <div>
-        ${
-          item.tipoVenta === "unit"
-            ? item.cantidad + " unidad(es)"
-            : item.gramos + " gr"
-        }
+        <strong>${item.nombre}</strong>
+
+        <div>
+          ${
+            item.tipoVenta === "unit"
+              ? item.cantidad + " unidad(es)"
+              : item.gramos + " gr"
+          }
+        </div>
+
+        <div>
+          Gs. ${Number(item.subtotal).toLocaleString()}
+        </div>
       </div>
 
-      <div>
-        Gs. ${Number(item.subtotal).toLocaleString()}
-      </div>
+      <button class="remove-item-btn" type="button">
+        Quitar
+      </button>
     `;
+
+    row
+      .querySelector(".remove-item-btn")
+      .addEventListener("click", () => {
+        onRemoveItem(index);
+      });
 
     container.appendChild(row);
   });
 
   totalElement.textContent =
-    "Gs. " +
-    getCartTotal().toLocaleString();
+    "Gs. " + getCartTotal().toLocaleString();
 
-  const clearButton =
-    document.getElementById("clearCartBtn");
-
+  const clearButton = document.getElementById("clearCartBtn");
   clearButton.onclick = onClear;
 }
