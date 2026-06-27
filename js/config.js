@@ -1,151 +1,63 @@
 /**
  * ==========================================================
  * ASTREA™ Vitrina Express
- * Configuration
+ * Business Configuration
  * ==========================================================
  *
- * Toda la información específica del comercio
- * debe vivir en este archivo.
- *
- * No colocar lógica.
- * No colocar funciones.
- *
- * Solamente configuración.
+ * Este archivo describe el comercio.
+ * No contiene lógica.
+ * No contiene funciones.
+ * Solo configuración.
  * ==========================================================
  */
 
-const STORE = {
+const BUSINESS = {
+  info: {
+    name: "ASTREA Market",
+    slogan: "Armá tu pedido y retiralo en el local.",
+    logo: null
+  },
 
-    /**
-     * ======================================================
-     * Información general
-     * ======================================================
-     */
+  theme: {
+    primary: "#22A745",
+    primaryDark: "#168737",
+    primarySoft: "#EAF8EE",
+    background: "#F5F6F4",
+    surface: "#FFFFFF",
+    text: "#1F2933"
+  },
 
-    info: {
+  contact: {
+    whatsapp: "595994151453",
+    email: ""
+  },
 
-        name: "ASTREA Market",
+  schedule: {
+    open: "07:00",
+    close: "21:00"
+  },
 
-        slogan: "Armá tu pedido y retiralo en el local.",
+  availability: {
+    status: "open",
+    reason: "",
+    updatedAt: ""
+  },
 
-        logo: null,
+  settings: {
+    currency: "Gs.",
+    weightStep: 50,
+    minWeight: 50,
+    maxWeight: 1500,
+    rememberCustomer: true,
+    enableSearch: true,
+    enableCategories: true,
+    enableImages: true,
+    enableStock: true,
+    enableWhatsapp: true,
+    enableEmailNotifications: false
+  },
 
-    },
-
-
-
-    /**
-     * ======================================================
-     * Identidad visual
-     * ======================================================
-     */
-
-    theme: {
-
-        primary: "#22A745",
-
-        dark: "#168737",
-
-    },
-
-
-
-    /**
-     * ======================================================
-     * Contacto
-     * ======================================================
-     */
-
-    contact: {
-
-        whatsapp: "595994151453",
-
-        email: "",
-
-    },
-
-
-
-    /**
-     * ======================================================
-     * Horarios
-     * ======================================================
-     */
-
-    schedule: {
-
-        open: "07:00",
-
-        close: "21:00",
-
-    },
-
-
-
-    /**
-     * ======================================================
-     * Estado operativo
-     * ======================================================
-     */
-
-    availability: {
-
-        status: "open",
-
-        /*
-            open
-            closed
-            temporary
-        */
-
-        message: ""
-
-    },
-
-
-
-    /**
-     * ======================================================
-     * Configuración
-     * ======================================================
-     */
-
-    settings: {
-
-        currency: "Gs.",
-
-        weightStep: 50,
-
-        maxWeight: 1500,
-
-        rememberCustomer: true,
-
-        enableSearch: true,
-
-        enableCategories: true,
-
-        enableImages: true,
-
-        enableStock: true,
-
-        enableWhatsapp: true,
-
-        enableEmailNotifications: false,
-
-    },
-
-
-
-    /**
-     * ======================================================
-     * API
-     * ======================================================
-     */
-
-    api: {
-
-        endpoint: "PEGAR_AQUI_TU_EXEC"
-
-    }
-
+  api: {
+    endpoint: "https://script.google.com/macros/s/AKfycbzvkMSG84918hb3wsJEkrkmIH5ev1ZbqZqoHdVzNcBCMILaF52ypMdzmbtYtheBN8ga/exec"
+  }
 };
