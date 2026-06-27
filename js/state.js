@@ -1,84 +1,109 @@
-import { CONFIG } from "./config.js";
+/**
+ * ==========================================================
+ * ASTREA™ Vitrina Express
+ * State
+ * ==========================================================
+ */
 
-export const state = {
+const STATE = {
   products: [],
   filteredProducts: [],
   categories: [],
   activeCategory: "Todas",
-  cart: loadCart()
+  cart: loadCart(),
+  customer: loadCustomer(),
+  ui: {
+    cartOpen: false,
+    categoriesOpen: false,
+    loading: false,
+    sending: false
+  }
 };
 
 function loadCart() {
   try {
     return JSON.parse(
-      localStorage.getItem(CONFIG.storageKey) || "[]"
+      localStorage.getItem("astrea_vitrina_express_cart") || "[]"
     );
   } catch {
     return [];
   }
 }
 
-export function saveCart() {
+function saveCart() {
   localStorage.setItem(
-    CONFIG.storageKey,
-    JSON.stringify(state.cart)
+    "astrea_vitrina_express_cart",
+    JSON.stringify(STATE.cart)
   );
 }
 
-export function setProducts(products) {
-  state.products = products || [];
-  state.filteredProducts = products || [];
+function loadCustomer() {
+  try {
+    return JSON.parse(
+      localStorage.getItem("astrea_vitrina_express_customer") || "{}"
+    );
+  } catch {
+    return {};
+  }
+}
 
-  state.categories = [
+function saveCustomer(customer) {
+  if (!BUSINESS.settings.rememberCustomer) return;
+
+  localStorage.setItem(
+    "astrea_vitrina_express_customer",
+    JSON.stringify(customer)
+  );
+
+  STATE.customer = customer;
+}
+
+function setProducts(products) {
+  STATE.products = Array.isArray(products) ? products : [];
+  STATE.filteredProducts = STATE.products;
+
+  STATE.categories = [
     "Todas",
     ...new Set(
-      products
+      STATE.products
         .map(product => product.categoria)
         .filter(Boolean)
     )
   ];
 }
 
-export function filterProducts(search = "") {
+function filterProducts(search = "") {
   const term = search.toLowerCase().trim();
 
-  state.filteredProducts = state.products.filter(product => {
+  STATE.filteredProducts = STATE.products.filter(product => {
     const matchCategory =
-      state.activeCategory === "Todas" ||
-      product.categoria === state.activeCategory;
+      STATE.activeCategory === "Todas" ||
+      product.categoria === STATE.activeCategory;
 
     const matchSearch =
       !term ||
-      String(product.nombre || "")
-        .toLowerCase()
-        .includes(term);
+      String(product.nombre || "").toLowerCase().includes(term);
 
     return matchCategory && matchSearch;
   });
 
-  return state.filteredProducts;
+  return STATE.filteredProducts;
 }
 
-export function setCategory(category) {
-  state.activeCategory = category;
+function setCategory(category) {
+  STATE.activeCategory = category;
 }
 
-export function clearCart() {
-  state.cart = [];
-  saveCart();
+function isProductInCart(productId) {
+  return STATE.cart.some(item => item.productId === productId);
 }
 
-export function removeCartItem(index) {
-  state.cart.splice(index, 1);
-  saveCart();
-}
-
-export function addUnitProduct(product, quantity = 1) {
+function addUnitProduct(product, quantity = 1) {
   const qty = Number(quantity);
 
   if (!qty || qty <= 0) return;
 
-  const existing = state.cart.find(
+  const existing = STATE.cart.find(
     item =>
       item.productId === product.id &&
       item.tipoVenta === "unit"
@@ -86,49 +111,84 @@ export function addUnitProduct(product, quantity = 1) {
 
   if (existing) {
     existing.cantidad += qty;
-    existing.subtotal =
-      existing.cantidad * Number(existing.precio);
+    existing.subtotal = existing.cantidad * Number(existing.precio);
   } else {
-    state.cart.push({
+    STATE.cart.push({
       productId: product.id,
       nombre: product.nombre,
       tipoVenta: "unit",
       cantidad: qty,
       gramos: null,
       precio: Number(product.precioUnidad || 0),
-      subtotal: qty * Number(product.precioUnidad || 0)
+      subtotal: qty * Number(product.precioUnidad || 0),
+      imagen: product.imagen || ""
     });
   }
 
   saveCart();
 }
 
-export function addWeightProduct(product, grams = 100) {
+function addWeightProduct(product, grams = BUSINESS.settings.minWeight) {
   const selectedGrams = Number(grams);
 
   if (!selectedGrams || selectedGrams <= 0) return;
 
   const pricePerKg = Number(product.precioKg || 0);
+  const subtotal = (pricePerKg / 1000) * selectedGrams;
 
-  const subtotal =
-    (pricePerKg / 1000) * selectedGrams;
-
-  state.cart.push({
+  STATE.cart.push({
     productId: product.id,
     nombre: product.nombre,
     tipoVenta: "weight",
     cantidad: null,
     gramos: selectedGrams,
     precio: pricePerKg,
-    subtotal
+    subtotal,
+    imagen: product.imagen || ""
   });
 
   saveCart();
 }
 
-export function getCartTotal() {
-  return state.cart.reduce(
+function removeCartItem(index) {
+  STATE.cart.splice(index, 1);
+  saveCart();
+}
+
+function clearCart() {
+  STATE.cart = [];
+  saveCart();
+}
+
+function getCartTotal() {
+  return STATE.cart.reduce(
     (total, item) => total + Number(item.subtotal || 0),
     0
   );
+}
+
+function getCartCount() {
+  return STATE.cart.reduce((count, item) => {
+    if (item.tipoVenta === "unit") {
+      return count + Number(item.cantidad || 0);
+    }
+
+    return count + 1;
+  }, 0);
+}
+
+function setCartOpen(value) {
+  STATE.ui.cartOpen = Boolean(value);
+}
+
+function setCategoriesOpen(value) {
+  STATE.ui.categoriesOpen = Boolean(value);
+}
+
+function setLoading(value) {
+  STATE.ui.loading = Boolean(value);
+}
+
+function setSending(value) {
+  STATE.ui.sending = Boolean(value);
 }
