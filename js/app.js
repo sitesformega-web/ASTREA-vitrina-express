@@ -1,81 +1,100 @@
-import { CONFIG } from "./config.js";
-import { fetchProducts, createOrder } from "./api.js";
+/**
+ * ==========================================================
+ * ASTREA™ Vitrina Express
+ * App
+ * ==========================================================
+ */
 
-import {
-  state,
-  setProducts,
-  filterProducts,
-  setCategory,
-  addUnitProduct,
-  addWeightProduct,
-  removeCartItem,
-  clearCart,
-  getCartTotal
-} from "./state.js";
+function init() {
+  setLoading(true);
+  renderApp(getHandlers());
+  loadProducts();
+}
 
-import {
-  renderStoreName,
-  renderCategories,
-  renderProducts,
-  renderCart
-} from "./ui.js";
+function getHandlers() {
+  return {
+    onToggleCart,
+    onToggleCategories,
+    onCategorySelect,
+    onAddProduct,
+    onRemoveCartItem,
+    onSendOrder
+  };
+}
 
 async function loadProducts() {
   try {
     const products = await fetchProducts();
 
     setProducts(products);
-    renderCategories(handleCategoryChange);
-    renderProducts(state.filteredProducts, handleAddProduct);
-    renderCart(handleRemoveItem, handleClearCart);
+    filterProducts("");
+
+    setLoading(false);
+
+    renderApp(getHandlers());
+    bindSearch();
 
   } catch (error) {
     console.error(error);
-    document.getElementById("loader").innerHTML =
-      "Error al cargar productos.";
+    setLoading(false);
+    showToast("No se pudieron cargar los productos.", "error");
+    renderApp(getHandlers());
   }
 }
 
-function handleCategoryChange(category) {
+function bindSearch() {
+  const input = document.getElementById("searchInput");
+
+  if (!input) return;
+
+  input.addEventListener("input", event => {
+    filterProducts(event.target.value);
+    renderProducts(getHandlers());
+  });
+}
+
+function onToggleCart() {
+  setCartOpen(!STATE.ui.cartOpen);
+  renderCart(getHandlers());
+}
+
+function onToggleCategories() {
+  setCategoriesOpen(!STATE.ui.categoriesOpen);
+  renderCategories(getHandlers());
+}
+
+function onCategorySelect(category) {
   setCategory(category);
+  filterProducts(document.getElementById("searchInput")?.value || "");
 
-  filterProducts(
-    document.getElementById("searchInput").value
-  );
+  setCategoriesOpen(false);
 
-  renderCategories(handleCategoryChange);
-  renderProducts(state.filteredProducts, handleAddProduct);
+  renderCategories(getHandlers());
+  renderProducts(getHandlers());
 }
 
-function handleSearch(event) {
-  filterProducts(event.target.value);
-  renderProducts(state.filteredProducts, handleAddProduct);
-}
-
-function handleAddProduct(product, value) {
+function onAddProduct(product, value) {
   if (product.tipoVenta === "weight") {
-    addWeightProduct(product, Number(value));
+    addWeightProduct(product, value);
   } else {
-    addUnitProduct(product, Number(value));
+    addUnitProduct(product, value);
   }
 
-  renderCart(handleRemoveItem, handleClearCart);
+  renderCart(getHandlers());
+  renderProducts(getHandlers());
+  renderCheckout(getHandlers());
+
+  showToast("Producto agregado al pedido.", "success");
 }
 
-function handleRemoveItem(index) {
+function onRemoveCartItem(index) {
   removeCartItem(index);
-  renderCart(handleRemoveItem, handleClearCart);
-}
 
-function handleClearCart() {
-  if (!state.cart.length) return;
+  renderCart(getHandlers());
+  renderProducts(getHandlers());
+  renderCheckout(getHandlers());
 
-  if (!confirm("¿Desea vaciar completamente el pedido?")) {
-    return;
-  }
-
-  clearCart();
-  renderCart(handleRemoveItem, handleClearCart);
+  showToast("Producto eliminado del pedido.", "info");
 }
 
 function buildWhatsAppMessage(orderId, customerName, customerPhone, note) {
@@ -94,65 +113,78 @@ function buildWhatsAppMessage(orderId, customerName, customerPhone, note) {
   lines.push("");
   lines.push("Productos:");
 
-  state.cart.forEach(item => {
+  STATE.cart.forEach(item => {
     const quantityText =
       item.tipoVenta === "unit"
         ? item.cantidad + " unidad(es)"
-        : item.gramos + " gr";
+        : item.gramos + " g";
 
     lines.push(
       "- " +
         item.nombre +
         " | " +
         quantityText +
-        " | Gs. " +
+        " | " +
+        BUSINESS.settings.currency +
+        " " +
         Number(item.subtotal).toLocaleString()
     );
   });
 
   lines.push("");
   lines.push(
-    "Total estimado: Gs. " +
+    "Total estimado: " +
+      BUSINESS.settings.currency +
+      " " +
       getCartTotal().toLocaleString()
   );
 
   lines.push("");
   lines.push("Retiro en local.");
 
+  if (BUSINESS.availability.status !== "open") {
+    lines.push("");
+    lines.push("Nota: pedido realizado fuera del estado abierto del comercio.");
+  }
+
   return encodeURIComponent(lines.join("\n"));
 }
 
-async function handleSendOrder() {
-  const customerName =
-    document.getElementById("customerName").value.trim();
+async function onSendOrder() {
+  const nameInput = document.getElementById("customerName");
+  const phoneInput = document.getElementById("customerPhone");
+  const noteInput = document.getElementById("customerNote");
 
-  const customerPhone =
-    document.getElementById("customerPhone").value.trim();
+  const customerName = nameInput.value.trim();
+  const customerPhone = phoneInput.value.trim();
+  const note = noteInput.value.trim();
 
-  const note =
-    document.getElementById("customerNote").value.trim();
-
-  if (!state.cart.length) {
-    alert("Agregá al menos un producto al pedido.");
+  if (!STATE.cart.length) {
+    showToast("Agregá al menos un producto al pedido.", "error");
     return;
   }
 
   if (!customerName) {
-    alert("Ingresá tu nombre.");
+    showToast("Ingresá tu nombre.", "error");
+    nameInput.focus();
     return;
   }
 
   if (!customerPhone) {
-    alert("Ingresá tu teléfono.");
+    showToast("Ingresá tu teléfono.", "error");
+    phoneInput.focus();
     return;
   }
+
+  setSending(true);
+  renderCheckout(getHandlers());
 
   const orderData = {
     cliente: customerName,
     telefono: customerPhone,
     total: getCartTotal(),
     observacion: note,
-    items: state.cart.map(item => ({
+    items: STATE.cart.map(item => ({
       productoId: item.productId,
       nombre: item.nombre,
       tipoVenta: item.tipoVenta,
@@ -166,6 +198,11 @@ async function handleSendOrder() {
   try {
     const result = await createOrder(orderData);
 
+    saveCustomer({
+      name: customerName,
+      phone: customerPhone
+    });
+
     const message = buildWhatsAppMessage(
       result.orderId,
       customerName,
@@ -175,35 +212,30 @@ async function handleSendOrder() {
 
     const whatsappUrl =
       "https://wa.me/" +
-      CONFIG.whatsappNumber +
+      BUSINESS.contact.whatsapp +
       "?text=" +
       message;
+
+    showToast("Pedido registrado. Se abrirá WhatsApp para confirmar el envío.", "success");
 
     window.open(whatsappUrl, "_blank");
 
     clearCart();
-    renderCart(handleRemoveItem, handleClearCart);
 
-    alert("Pedido registrado correctamente.");
+    setSending(false);
+    setCartOpen(false);
+
+    renderApp(getHandlers());
+    bindSearch();
 
   } catch (error) {
     console.error(error);
-    alert("No se pudo registrar el pedido. Intentá nuevamente.");
+
+    setSending(false);
+    renderCheckout(getHandlers());
+
+    showToast("No se pudo registrar el pedido. Intentá nuevamente.", "error");
   }
-}
-
-function init() {
-  renderStoreName();
-
-  document
-    .getElementById("searchInput")
-    .addEventListener("input", handleSearch);
-
-  document
-    .getElementById("sendOrderBtn")
-    .addEventListener("click", handleSendOrder);
-
-  loadProducts();
 }
 
 init();
