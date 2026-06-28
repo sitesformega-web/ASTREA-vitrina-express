@@ -323,6 +323,7 @@ function renderCheckoutInner() {
   `;
 }
 
+
 function renderCheckout(handlers) {
   const container = document.getElementById("checkout-section");
   container.innerHTML = "";
