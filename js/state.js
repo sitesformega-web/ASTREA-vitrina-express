@@ -12,9 +12,17 @@ const STATE = {
   activeCategory: "Todas",
   cart: loadCart(),
   customer: loadCustomer(),
+
+  feedback: {
+    rating: 0,
+    comment: "",
+    sent: false
+  },
+
   ui: {
     cartOpen: false,
-    categoriesOpen: false,
+    categoriesOpen: true,
+    categoriesShowAll: false,
     loading: false,
     sending: false
   }
@@ -100,13 +108,10 @@ function isProductInCart(productId) {
 
 function addUnitProduct(product, quantity = 1) {
   const qty = Number(quantity);
-
   if (!qty || qty <= 0) return;
 
   const existing = STATE.cart.find(
-    item =>
-      item.productId === product.id &&
-      item.tipoVenta === "unit"
+    item => item.productId === product.id && item.tipoVenta === "unit"
   );
 
   if (existing) {
@@ -130,7 +135,6 @@ function addUnitProduct(product, quantity = 1) {
 
 function addWeightProduct(product, grams = BUSINESS.settings.minWeight) {
   const selectedGrams = Number(grams);
-
   if (!selectedGrams || selectedGrams <= 0) return;
 
   const pricePerKg = Number(product.precioKg || 0);
@@ -185,10 +189,26 @@ function setCategoriesOpen(value) {
   STATE.ui.categoriesOpen = Boolean(value);
 }
 
+function setCategoriesShowAll(value) {
+  STATE.ui.categoriesShowAll = Boolean(value);
+}
+
 function setLoading(value) {
   STATE.ui.loading = Boolean(value);
 }
 
 function setSending(value) {
   STATE.ui.sending = Boolean(value);
+}
+
+function setFeedbackRating(rating) {
+  STATE.feedback.rating = Number(rating);
+}
+
+function setFeedbackComment(comment) {
+  STATE.feedback.comment = String(comment || "");
+}
+
+function setFeedbackSent(value) {
+  STATE.feedback.sent = Boolean(value);
 }
