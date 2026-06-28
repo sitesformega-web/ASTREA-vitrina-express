@@ -37,12 +37,13 @@ async function loadProducts() {
 
     renderApp(getHandlers());
     bindSearch();
-
   } catch (error) {
     console.error(error);
+
     setLoading(false);
-    showToast("No se pudieron cargar los productos.", "error");
     renderApp(getHandlers());
+
+    showToast("No se pudieron cargar los productos.", "error");
   }
 }
 
@@ -225,18 +226,22 @@ async function onSendOrder() {
       "?text=" +
       message;
 
-    showToast("Pedido registrado. Se abrirá WhatsApp para confirmar el envío.", "success");
+    showToast(
+      "Pedido registrado. Se abrirá WhatsApp para confirmar el envío.",
+      "success"
+    );
 
     window.open(whatsappUrl, "_blank");
 
     clearCart();
+
+    resetFeedback();
 
     setSending(false);
     setCartOpen(false);
 
     renderApp(getHandlers());
     bindSearch();
-
   } catch (error) {
     console.error(error);
 
@@ -250,6 +255,7 @@ async function onSendOrder() {
 function onFeedbackRating(rating) {
   setFeedbackRating(rating);
   setFeedbackSent(false);
+
   renderFooter(getHandlers());
 }
 
@@ -264,9 +270,24 @@ function onFeedbackSubmit() {
   }
 
   setFeedbackSent(true);
+
   renderFooter(getHandlers());
 
-  showToast("Gracias por tu calificación.", "success");
+  showToast(
+    "Agradecemos tus observaciones, nos ayudan a mejorar.",
+    "success"
+  );
+
+  setTimeout(() => {
+    resetFeedback();
+    renderFooter(getHandlers());
+  }, 2500);
+}
+
+function resetFeedback() {
+  STATE.feedback.rating = 0;
+  STATE.feedback.comment = "";
+  STATE.feedback.sent = false;
 }
 
 init();
