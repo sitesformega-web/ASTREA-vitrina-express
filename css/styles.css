@@ -48,11 +48,21 @@ img {
   gap: var(--space-4);
 }
 
-.brand-signature {
-  width: fit-content;
-  padding-bottom: var(--space-3);
+.brand-signature,
+.brand-signature:visited,
+.brand-signature:hover,
+.brand-signature:active {
   color: var(--muted);
   text-decoration: none;
+}
+
+.brand-signature {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -60,7 +70,7 @@ img {
 }
 
 .brand-signature:hover {
-  color: var(--primary);
+  color: var(--text);
 }
 
 .brand-service {
@@ -70,7 +80,6 @@ img {
 .brand-by {
   font-weight: 400;
   text-transform: lowercase;
-  margin: 0 3px;
 }
 
 .brand-astrea {
@@ -123,7 +132,7 @@ img {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
 }
 
 .search-box input {
@@ -147,7 +156,7 @@ img {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
   overflow: hidden;
 }
 
@@ -237,7 +246,7 @@ img {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
   overflow: hidden;
 }
 
@@ -428,6 +437,7 @@ img {
   border: none;
   box-shadow: none;
   padding: 0;
+  border-radius: 0;
   display: grid;
   gap: var(--space-4);
 }
@@ -463,7 +473,7 @@ img {
 }
 
 .checkout-fields textarea {
-  min-height: 44px;
+  min-height: 70px;
   border-radius: var(--radius-lg);
   resize: none;
 }
@@ -475,7 +485,7 @@ img {
   line-height: 1.45;
 }
 
-/* Footer / Experience */
+/* Footer Experience */
 
 #astrea-footer {
   margin-top: var(--space-6);
@@ -483,10 +493,10 @@ img {
 
 .experience-footer {
   background: var(--primary);
+  color: white;
   border-radius: var(--radius-xl);
   padding: var(--space-5);
-  color: white;
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
 }
 
 .experience-card {
@@ -496,25 +506,27 @@ img {
 
 .experience-title {
   margin: 0;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 500;
 }
 
 .star-rating {
   display: flex;
-  gap: var(--space-1);
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .star-btn {
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.48);
   font-size: 28px;
   line-height: 1;
   padding: 0;
 }
 
-.star-btn.active {
+.star-btn.active,
+.star-btn:hover {
   color: white;
 }
 
@@ -525,11 +537,12 @@ img {
 
 .feedback-comment-box label {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .feedback-comment-box textarea {
-  min-height: 70px;
+  width: 100%;
+  min-height: 72px;
   border: none;
   border-radius: var(--radius-lg);
   padding: 12px;
@@ -568,7 +581,7 @@ img {
   border-radius: var(--radius-lg);
   background: var(--text);
   color: white;
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
   font-size: 13px;
   font-weight: 700;
   text-align: center;
@@ -610,6 +623,6 @@ img {
   }
 
   #astrea-footer {
-    grid-column: 1 / -1;
+    max-width: var(--max-width);
   }
 }
