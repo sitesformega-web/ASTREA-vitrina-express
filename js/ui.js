@@ -247,6 +247,10 @@ function renderCart(handlers) {
             `
             : `<div class="empty-cart">No hay productos agregados.</div>`
         }
+
+        <div class="cart-checkout">
+          ${renderCheckoutInner()}
+        </div>
       </div>
     </section>
   `;
@@ -260,6 +264,12 @@ function renderCart(handlers) {
       handlers.onRemoveCartItem(Number(button.dataset.index));
     });
   });
+
+  const sendBtn = container.querySelector("#sendOrderBtn");
+
+  if (sendBtn) {
+    sendBtn.addEventListener("click", handlers.onSendOrder);
+  }
 }
 
 function renderCartItem(item, index) {
@@ -285,14 +295,12 @@ function renderCartItem(item, index) {
   `;
 }
 
-function renderCheckout(handlers) {
-  const container = document.getElementById("checkout-section");
-
+function renderCheckoutInner() {
   const customerName = STATE.customer.name || "";
   const customerPhone = STATE.customer.phone || "";
 
-  container.innerHTML = `
-    <section class="checkout-card">
+  return `
+    <div class="checkout-card inside-cart">
       <div class="checkout-total">
         <span>Total estimado</span>
         <strong>${formatMoney(getCartTotal())}</strong>
@@ -311,12 +319,13 @@ function renderCheckout(handlers) {
       <button id="sendOrderBtn" class="btn btn-primary" type="button" ${STATE.ui.sending ? "disabled" : ""}>
         ${STATE.ui.sending ? "Enviando..." : "Enviar pedido"}
       </button>
-    </section>
+    </div>
   `;
+}
 
-  document
-    .getElementById("sendOrderBtn")
-    .addEventListener("click", handlers.onSendOrder);
+function renderCheckout(handlers) {
+  const container = document.getElementById("checkout-section");
+  container.innerHTML = "";
 }
 
 function showToast(message, type = "info") {
