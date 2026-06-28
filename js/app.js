@@ -15,10 +15,14 @@ function getHandlers() {
   return {
     onToggleCart,
     onToggleCategories,
+    onToggleCategoryLimit,
     onCategorySelect,
     onAddProduct,
     onRemoveCartItem,
-    onSendOrder
+    onSendOrder,
+    onFeedbackRating,
+    onFeedbackComment,
+    onFeedbackSubmit
   };
 }
 
@@ -63,6 +67,11 @@ function onToggleCategories() {
   renderCategories(getHandlers());
 }
 
+function onToggleCategoryLimit() {
+  setCategoriesShowAll(!STATE.ui.categoriesShowAll);
+  renderCategories(getHandlers());
+}
+
 function onCategorySelect(category) {
   setCategory(category);
   filterProducts(document.getElementById("searchInput")?.value || "");
@@ -82,7 +91,7 @@ function onAddProduct(product, value) {
 
   renderCart(getHandlers());
   renderProducts(getHandlers());
-  renderCheckout(getHandlers());
+  renderFooter(getHandlers());
 
   showToast("Producto agregado al pedido.", "success");
 }
@@ -92,7 +101,7 @@ function onRemoveCartItem(index) {
 
   renderCart(getHandlers());
   renderProducts(getHandlers());
-  renderCheckout(getHandlers());
+  renderFooter(getHandlers());
 
   showToast("Producto eliminado del pedido.", "info");
 }
@@ -155,9 +164,9 @@ async function onSendOrder() {
   const phoneInput = document.getElementById("customerPhone");
   const noteInput = document.getElementById("customerNote");
 
-  const customerName = nameInput.value.trim();
-  const customerPhone = phoneInput.value.trim();
-  const note = noteInput.value.trim();
+  const customerName = nameInput?.value.trim() || "";
+  const customerPhone = phoneInput?.value.trim() || "";
+  const note = noteInput?.value.trim() || "";
 
   if (!STATE.cart.length) {
     showToast("Agregá al menos un producto al pedido.", "error");
@@ -166,18 +175,18 @@ async function onSendOrder() {
 
   if (!customerName) {
     showToast("Ingresá tu nombre.", "error");
-    nameInput.focus();
+    nameInput?.focus();
     return;
   }
 
   if (!customerPhone) {
     showToast("Ingresá tu teléfono.", "error");
-    phoneInput.focus();
+    phoneInput?.focus();
     return;
   }
 
   setSending(true);
-  renderCheckout(getHandlers());
+  renderCart(getHandlers());
 
   const orderData = {
     cliente: customerName,
@@ -232,10 +241,32 @@ async function onSendOrder() {
     console.error(error);
 
     setSending(false);
-    renderCheckout(getHandlers());
+    renderCart(getHandlers());
 
     showToast("No se pudo registrar el pedido. Intentá nuevamente.", "error");
   }
+}
+
+function onFeedbackRating(rating) {
+  setFeedbackRating(rating);
+  setFeedbackSent(false);
+  renderFooter(getHandlers());
+}
+
+function onFeedbackComment(comment) {
+  setFeedbackComment(comment);
+}
+
+function onFeedbackSubmit() {
+  if (!STATE.feedback.rating) {
+    showToast("Seleccioná una calificación.", "error");
+    return;
+  }
+
+  setFeedbackSent(true);
+  renderFooter(getHandlers());
+
+  showToast("Gracias por tu calificación.", "success");
 }
 
 init();
