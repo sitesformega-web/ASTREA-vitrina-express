@@ -1,3 +1,10 @@
+/* ==========================================================
+   ASTREA™ UI Kit v1.0
+   Vitrina Express
+   ========================================================== */
+
+/* Reset */
+
 * {
   box-sizing: border-box;
 }
@@ -29,12 +36,19 @@ img {
   display: block;
 }
 
+/* Layout */
+
 #app {
   width: 100%;
   max-width: 420px;
   min-height: 100vh;
   margin: 0 auto;
   padding: var(--space-5) var(--space-4) var(--space-8);
+}
+
+#main-content {
+  display: grid;
+  gap: var(--space-4);
 }
 
 /* Header */
@@ -46,6 +60,12 @@ img {
 .store-header-inner {
   display: grid;
   gap: var(--space-4);
+}
+
+.brand-line {
+  width: 100%;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
 }
 
 .brand-signature,
@@ -61,8 +81,6 @@ img {
   align-items: center;
   gap: 4px;
   width: fit-content;
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--border);
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -101,30 +119,50 @@ img {
   font-size: 14px;
 }
 
-.store-status {
+/* Business status */
+
+.store-status-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.store-status-pill {
   display: inline-flex;
-  width: fit-content;
-  padding: 7px 12px;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 13px;
   border-radius: var(--radius-full);
   font-size: 12px;
   font-weight: 700;
 }
 
-.store-status.open {
-  background: var(--primary-soft);
-  color: var(--primary-dark);
+.store-status-pill.open {
+  background: var(--primary);
+  color: white;
 }
 
-.store-status.closed,
-.store-status.temporary {
-  background: #fff1f2;
-  color: var(--danger);
+.store-status-pill.closed {
+  background: var(--danger);
+  color: white;
+}
+
+.store-status-pill.temporary {
+  background: var(--warning);
+  color: white;
+}
+
+.store-status-detail {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 /* Search */
 
 .search-box {
-  height: 44px;
+  height: 46px;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -132,7 +170,7 @@ img {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.045);
 }
 
 .search-box input {
@@ -143,20 +181,13 @@ img {
   color: var(--text);
 }
 
-/* Layout */
-
-#main-content {
-  display: grid;
-  gap: var(--space-4);
-}
-
-/* Accordion */
+/* Accordions */
 
 .accordion {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.045);
   overflow: hidden;
 }
 
@@ -246,7 +277,7 @@ img {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.045);
   overflow: hidden;
 }
 
@@ -496,7 +527,7 @@ img {
   color: white;
   border-radius: var(--radius-xl);
   padding: var(--space-5);
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.045);
 }
 
 .experience-card {
@@ -562,6 +593,15 @@ img {
 .feedback-thanks {
   margin: 0;
   font-size: 13px;
+}
+
+.footer-signature {
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.82;
 }
 
 /* Toast */
