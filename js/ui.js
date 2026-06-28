@@ -36,7 +36,8 @@ function renderApp(handlers) {
   renderCart(handlers);
   renderCategories(handlers);
   renderProducts(handlers);
-  renderCheckout(handlers);
+  renderFooter(handlers);
+  renderCheckout();
 }
 
 function renderBusinessTheme() {
@@ -57,7 +58,11 @@ function renderHeader() {
 
   container.innerHTML = `
     <div class="store-header-inner">
-      <div class="brand-kicker">Vitrina Express by ASTREA™</div>
+      <a class="brand-signature" href="#" aria-label="ASTREA">
+        <span class="brand-service">VITRINA EXPRESS</span>
+        <span class="brand-by">by</span>
+        <span class="brand-astrea">ASTREA™</span>
+      </a>
 
       <div class="store-title-row">
         <div>
@@ -92,8 +97,15 @@ function renderCategories(handlers) {
     return;
   }
 
+  const maxVisible = 6;
+  const hasMany = STATE.categories.length > maxVisible;
+  const visibleCategories =
+    hasMany && !STATE.ui.categoriesShowAll
+      ? STATE.categories.slice(0, maxVisible)
+      : STATE.categories;
+
   container.innerHTML = `
-    <section class="accordion ${STATE.ui.categoriesOpen ? "open" : ""}">
+    <section class="accordion category-accordion ${STATE.ui.categoriesOpen ? "open" : ""}">
       <button class="accordion-head" id="toggleCategoriesBtn" type="button">
         <span>Categorías</span>
         <strong>${escapeHTML(STATE.activeCategory)}</strong>
@@ -102,7 +114,7 @@ function renderCategories(handlers) {
 
       <div class="accordion-body">
         <div class="category-chip-list">
-          ${STATE.categories
+          ${visibleCategories
             .map(category => {
               const active = category === STATE.activeCategory;
 
@@ -118,6 +130,16 @@ function renderCategories(handlers) {
             })
             .join("")}
         </div>
+
+        ${
+          hasMany
+            ? `
+              <button id="toggleCategoryLimitBtn" class="category-more-btn" type="button">
+                ${STATE.ui.categoriesShowAll ? "Mostrar menos" : "Mostrar más"}
+              </button>
+            `
+            : ""
+        }
       </div>
     </section>
   `;
@@ -131,6 +153,12 @@ function renderCategories(handlers) {
       handlers.onCategorySelect(button.dataset.category);
     });
   });
+
+  const moreBtn = document.getElementById("toggleCategoryLimitBtn");
+
+  if (moreBtn) {
+    moreBtn.addEventListener("click", handlers.onToggleCategoryLimit);
+  }
 }
 
 function renderProducts(handlers) {
@@ -162,9 +190,9 @@ function renderProducts(handlers) {
         <article class="product-card ${added ? "added" : ""}" data-product-id="${escapeHTML(product.id)}">
           ${added ? `<div class="product-check">✓</div>` : ""}
 
-          <div class="product-image">
+          <button class="product-image" type="button" aria-label="Ver detalle de ${escapeHTML(product.nombre)}">
             <img src="${escapeHTML(image)}" alt="${escapeHTML(product.nombre)}">
-          </div>
+          </button>
 
           <div class="product-info">
             <div class="product-category">${escapeHTML(product.categoria || "General")}</div>
@@ -218,6 +246,10 @@ function renderProducts(handlers) {
 
     card.querySelector(".add-product-btn").addEventListener("click", () => {
       handlers.onAddProduct(product, Number(control.dataset.value));
+    });
+
+    card.querySelector(".product-image").addEventListener("click", () => {
+      showToast("Detalle de producto disponible próximamente.", "info");
     });
   });
 }
@@ -323,10 +355,84 @@ function renderCheckoutInner() {
   `;
 }
 
-
-function renderCheckout(handlers) {
+function renderCheckout() {
   const container = document.getElementById("checkout-section");
   container.innerHTML = "";
+}
+
+function renderFooter(handlers) {
+  const footerId = "astrea-footer";
+  let footer = document.getElementById(footerId);
+
+  if (!footer) {
+    footer = document.createElement("footer");
+    footer.id = footerId;
+    document.getElementById("app").appendChild(footer);
+  }
+
+  footer.innerHTML = `
+    <section class="experience-footer">
+      <div class="experience-card">
+        <p class="experience-title">¿Cómo fue tu experiencia?</p>
+
+        <div class="star-rating" role="radiogroup" aria-label="Calificación de experiencia">
+          ${[1, 2, 3, 4, 5]
+            .map(star => `
+              <button 
+                type="button" 
+                class="star-btn ${STATE.feedback.rating >= star ? "active" : ""}" 
+                data-rating="${star}"
+                aria-label="${star} estrella${star > 1 ? "s" : ""}"
+              >
+                ★
+              </button>
+            `)
+            .join("")}
+        </div>
+
+        ${
+          STATE.feedback.rating
+            ? `
+              <div class="feedback-comment-box">
+                <label for="feedbackComment">¿Te gustaría dejar un comentario?</label>
+                <textarea id="feedbackComment" placeholder="Escribí tu comentario">${escapeHTML(STATE.feedback.comment)}</textarea>
+
+                <button id="sendFeedbackBtn" class="btn feedback-btn" type="button" ${STATE.feedback.sent ? "disabled" : ""}>
+                  ${STATE.feedback.sent ? "Comentario enviado" : "Enviar comentario"}
+                </button>
+
+                ${
+                  STATE.feedback.sent
+                    ? `<p class="feedback-thanks">Agradecemos tus observaciones, nos ayudan a mejorar. ☺️</p>`
+                    : ""
+                }
+              </div>
+            `
+            : ""
+        }
+      </div>
+    </section>
+  `;
+
+  footer.querySelectorAll(".star-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      handlers.onFeedbackRating(Number(button.dataset.rating));
+    });
+  });
+
+  const comment = footer.querySelector("#feedbackComment");
+
+  if (comment) {
+    comment.addEventListener("input", event => {
+      handlers.onFeedbackComment(event.target.value);
+    });
+  }
+
+  const send = footer.querySelector("#sendFeedbackBtn");
+
+  if (send) {
+    send.addEventListener("click", handlers.onFeedbackSubmit);
+  }
 }
 
 function showToast(message, type = "info") {
