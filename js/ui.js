@@ -46,23 +46,43 @@ function renderBusinessTheme() {
   document.documentElement.style.setProperty("--primary-soft", BUSINESS.theme.primarySoft);
 }
 
+function getAvailabilityData() {
+  if (BUSINESS.availability.status === "open") {
+    return {
+      status: "open",
+      label: "Abierto",
+      detail: BUSINESS.schedule.open + " a " + BUSINESS.schedule.close
+    };
+  }
+
+  if (BUSINESS.availability.status === "temporary") {
+    return {
+      status: "temporary",
+      label: "Cerrado",
+      detail: BUSINESS.availability.reason || "Volvemos en un momento"
+    };
+  }
+
+  return {
+    status: "closed",
+    label: "Cerrado",
+    detail: BUSINESS.availability.reason || "Volvemos mañana"
+  };
+}
+
 function renderHeader() {
   const container = document.getElementById("store-header");
-
-  const availabilityText =
-    BUSINESS.availability.status === "open"
-      ? "Abierto"
-      : BUSINESS.availability.status === "temporary"
-        ? "Cerrado temporalmente"
-        : "Cerrado";
+  const availability = getAvailabilityData();
 
   container.innerHTML = `
     <div class="store-header-inner">
-      <a class="brand-signature" href="#" aria-label="ASTREA">
-        <span class="brand-service">VITRINA EXPRESS</span>
-        <span class="brand-by">by</span>
-        <span class="brand-astrea">ASTREA™</span>
-      </a>
+      <div class="brand-line">
+        <a class="brand-signature" href="#" aria-label="ASTREA">
+          <span class="brand-service">VITRINA EXPRESS</span>
+          <span class="brand-by">by</span>
+          <span class="brand-astrea">ASTREA™</span>
+        </a>
+      </div>
 
       <div class="store-title-row">
         <div>
@@ -71,8 +91,13 @@ function renderHeader() {
         </div>
       </div>
 
-      <div class="store-status ${BUSINESS.availability.status}">
-        ${availabilityText} · ${BUSINESS.schedule.open} a ${BUSINESS.schedule.close}
+      <div class="store-status-row">
+        <span class="store-status-pill ${availability.status}">
+          ${escapeHTML(availability.label)}
+        </span>
+        <span class="store-status-detail">
+          ${escapeHTML(availability.detail)}
+        </span>
       </div>
 
       ${
@@ -165,16 +190,12 @@ function renderProducts(handlers) {
   const container = document.getElementById("product-grid");
 
   if (STATE.ui.loading) {
-    container.innerHTML = `
-      <div class="empty-state">Cargando productos...</div>
-    `;
+    container.innerHTML = `<div class="empty-state">Cargando productos...</div>`;
     return;
   }
 
   if (!STATE.filteredProducts.length) {
-    container.innerHTML = `
-      <div class="empty-state">No se encontraron productos.</div>
-    `;
+    container.innerHTML = `<div class="empty-state">No se encontraron productos.</div>`;
     return;
   }
 
@@ -373,7 +394,7 @@ function renderFooter(handlers) {
   footer.innerHTML = `
     <section class="experience-footer">
       <div class="experience-card">
-        <p class="experience-title">¿Cómo fue tu experiencia?</p>
+        <p class="experience-title">¿Cómo estuvo tu experiencia?</p>
 
         <div class="star-rating" role="radiogroup" aria-label="Calificación de experiencia">
           ${[1, 2, 3, 4, 5]
@@ -395,10 +416,10 @@ function renderFooter(handlers) {
             ? `
               <div class="feedback-comment-box">
                 <label for="feedbackComment">¿Te gustaría dejar un comentario?</label>
-                <textarea id="feedbackComment" placeholder="Escribí tu comentario">${escapeHTML(STATE.feedback.comment)}</textarea>
+                <textarea id="feedbackComment" placeholder="Comentanos">${escapeHTML(STATE.feedback.comment)}</textarea>
 
                 <button id="sendFeedbackBtn" class="btn feedback-btn" type="button" ${STATE.feedback.sent ? "disabled" : ""}>
-                  ${STATE.feedback.sent ? "Comentario enviado" : "Enviar comentario"}
+                  ${STATE.feedback.sent ? "Enviado" : "Enviar"}
                 </button>
 
                 ${
@@ -410,6 +431,10 @@ function renderFooter(handlers) {
             `
             : ""
         }
+
+        <div class="footer-signature">
+          © 2026 ASTREA™
+        </div>
       </div>
     </section>
   `;
